@@ -1,0 +1,27 @@
+default:
+  nycdb:
+    driver: 'Postgres'
+    host: '' 
+    user: ''
+    password: ''
+    port: 5432
+    dbname: 'nycdb'
+  mapbox:
+    token: '' 
+  geoclient:
+    id: ''
+    key: ''
+
+shinyapps:
+  nycdb:
+    driver: 'Postgres'
+    host: ''
+    user: ''
+    password: ''
+    port: 5432
+    dbname: 'nycdb'
+  mapbox:
+    token: '' 
+  geoclient:
+    id: ''
+    key: ''
