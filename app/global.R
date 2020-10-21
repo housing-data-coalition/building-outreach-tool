@@ -35,6 +35,14 @@ geoclient <- get("geoclient")
 geoclient_api_keys(id = geoclient$id, key = geoclient$key)
 
 
+bbl_links <- function(bbl) {
+  glue(
+    "<a href='https://portal.displacementalert.org/property/{bbl}'>DAP Portal</a>",
+    "</br>",
+    "<a href='https://whoownswhat.justfix.nyc/en/bbl/{bbl}'>Who-Owns-What</a>"
+  )
+}
+
 # temporary fixes..
 
 glue_sql <- function(..., .con) {
@@ -47,3 +55,4 @@ is.integer64 <- function(x){
   result = class(x) == "integer64"
   result[1]
 }
+

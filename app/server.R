@@ -26,6 +26,10 @@ server <- function(input, output, session) {
 
     read_sf(con, query = outreach_query) %>%
       mutate(across(where(is.integer64), as.numeric)) %>%
+      mutate(
+        bbl_links = bbl_links(bbl),
+        .after = bbl
+      ) %>% 
       st_transform(4326)
 
   })
@@ -39,6 +43,10 @@ server <- function(input, output, session) {
 
     read_sf(con, query = home_query) %>%
       mutate(across(where(is.integer64), as.numeric)) %>%
+      mutate(
+        bbl_links = bbl_links(bbl),
+        .after = bbl
+      ) %>% 
       st_transform(4326)
   })
 
@@ -86,6 +94,7 @@ server <- function(input, output, session) {
   output$home_table = renderDT(
     st_drop_geometry(home_bldg()),
     selection = "none",
+    escape = 2,
     options = list(
       dom = 'Brtip',
       language = list(zeroRecords = "Please input an address"),
@@ -96,6 +105,7 @@ server <- function(input, output, session) {
   output$outreach_table = renderDT(
     st_drop_geometry(outreach_bldgs()),
     selection = "none",
+    escape = 2,
     options = list(
       dom = 'Brtip',
       language = list(zeroRecords = "Please input an address"),
