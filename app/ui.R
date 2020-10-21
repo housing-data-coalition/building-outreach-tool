@@ -16,10 +16,24 @@ ui <- function(request) {
           leafletOutput("map", width = "100%", height = "400px"),
         ),
         column(8, 
+          downloadButton("download_all", "Download Buildings Info"),
           DTOutput("home_table"),
           DTOutput("outreach_table"),
         )
       )
+    ),
+    
+    
+    tabPanel(
+      title = "Property Details",
+      value = "detailsTab",
+      
+      # BBL Selector
+      textInput("bbl", "Enter a BBL or choose one from Propertries Overview", value = NULL, width = "400px"),
+      
+      # Single BBL Tables
+      h2(textOutput("bbl_address")),
+      detailsTableOutput("hpd_complaints_table", "Open HPD Complaints since 2019"),
     ),
     
     tabPanel(

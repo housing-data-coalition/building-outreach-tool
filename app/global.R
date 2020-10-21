@@ -12,6 +12,8 @@ library(glue) # Interpreted string literals
 library(DT) # JS DataTables
 
 
+# Set Secrets -------------------------------------------------------------
+
 nycdb <- get("nycdb")
 
 con <- dbPool(
@@ -35,6 +37,14 @@ geoclient <- get("geoclient")
 geoclient_api_keys(id = geoclient$id, key = geoclient$key)
 
 
+# Load Modules ------------------------------------------------------------
+
+source("details_module.R")
+
+enableBookmarking("url")
+
+# Helper Functions --------------------------------------------------------
+
 bbl_links <- function(bbl) {
   glue(
     "<a href='https://portal.displacementalert.org/property/{bbl}'>DAP Portal</a>",
@@ -43,7 +53,20 @@ bbl_links <- function(bbl) {
   )
 }
 
-# temporary fixes..
+bbl_button <- function(bbl) {
+  glue(
+    "<button 
+      id='button_{bbl}' 
+      type='button' 
+      class='btn btn-default action-button' 
+      onclick='Shiny.onInputChange(&quot;bbl_button&quot;, this.id)'>
+    {bbl}
+    </button>"
+  )
+}
+
+
+# temporary fixes.. -------------------------------------------------------
 
 glue_sql <- function(..., .con) {
   connection <- pool::poolCheckout(.con)
@@ -55,4 +78,3 @@ is.integer64 <- function(x){
   result = class(x) == "integer64"
   result[1]
 }
-

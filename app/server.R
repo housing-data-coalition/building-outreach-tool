@@ -1,5 +1,33 @@
 server <- function(input, output, session) {
   
+  # Bookmarking -------------------------------------------------------------
+  
+  # Only want to include bbl input for bookmark url, so exclude all others
+  ExcludedIDs <- reactiveVal(value = NULL)
+  
+  observe({
+    toExclude <- setdiff(names(input), "bbl")
+    setBookmarkExclude(toExclude)
+    ExcludedIDs(toExclude)
+  })
+  
+  # Update the url with each bbl input change
+  observe({
+    bbl <- reactiveValuesToList(input)$bbl
+    if (bbl != "") session$doBookmark()
+  })
+  
+  onBookmarked(function(url) {
+    updateQueryString(url)
+  })
+  
+  # Restore to details tab
+  onRestored(function(state) {
+    updateTabsetPanel(session, "inTabset", selected = "detailsTab")
+  })
+  
+  
+  
   # Geocoding ---------------------------------------------------------------
 
   home_bbl <- eventReactive(input$submit_info, {
@@ -27,6 +55,7 @@ server <- function(input, output, session) {
     read_sf(con, query = outreach_query) %>%
       mutate(across(where(is.integer64), as.numeric)) %>%
       mutate(
+        bbl_button = bbl_button(bbl),
         bbl_links = bbl_links(bbl),
         .after = bbl
       ) %>% 
@@ -44,6 +73,7 @@ server <- function(input, output, session) {
     read_sf(con, query = home_query) %>%
       mutate(across(where(is.integer64), as.numeric)) %>%
       mutate(
+        bbl_button = bbl_button(bbl),
         bbl_links = bbl_links(bbl),
         .after = bbl
       ) %>% 
@@ -92,9 +122,9 @@ server <- function(input, output, session) {
   # Tables ------------------------------------------------------------------
 
   output$home_table = renderDT(
-    st_drop_geometry(home_bldg()),
+    home_bldg() %>% select(-bbl) %>% st_drop_geometry(),
     selection = "none",
-    escape = 1,
+    escape = FALSE,
     rownames = FALSE,
     options = list(
       dom = 'Brt',
@@ -104,9 +134,9 @@ server <- function(input, output, session) {
   )
 
   output$outreach_table = renderDT(
-    st_drop_geometry(outreach_bldgs()),
+    outreach_bldgs() %>% select(-bbl) %>% st_drop_geometry(),
     selection = "none",
-    escape = 1,
+    escape = FALSE,
     rownames = FALSE,
     options = list(
       dom = 'BSrtip',
@@ -116,4 +146,57 @@ server <- function(input, output, session) {
     )
   )
   
+  
+  output$download_all <- downloadHandler(
+    filename = function() {
+      glue("{home_bbl()}_bldgs-{input$n_bldgs}_walk-{input$n_mins}_{Sys.Date()}.csv")
+    },
+    content = function(file) {
+      bind_rows(home_bldg(), outreach_bldgs()) %>% 
+        select(-starts_with("bbl_")) %>% 
+        st_drop_geometry() %>% 
+        write.csv(file, na = "")
+    }
+  )
+  
+  
+  # Selected BBL ------------------------------------------------------------
+  
+  bbl_address <- reactive({
+    req(input$bbl)
+    
+    query <- glue_sql("
+      SELECT 
+        bbl || ': ' || address 
+      FROM ridgewood.hdc_building_info
+      WHERE bbl = {input$bbl}
+    ", .con = con)
+    
+    dbGetQuery(con, query)[[1]]
+  })
+  
+  output$bbl_address <- renderText(bbl_address())
+  
+  observeEvent(input$bbl_button, {
+    req(input$bbl_button)
+    
+    clicked_bbl <- gsub("button_", "", input$bbl_button) # Get bbl out of button id
+    updateTextInput(session, "bbl", value = clicked_bbl)
+    
+    # Move  to details tab
+    updateTabsetPanel(session, "inTabset", selected = "detailsTab")
+  })
+  
+
+  # HPD Complaints Details --------------------------------------------------
+
+  callModule(
+    module = detailsTable, 
+    id = "hpd_complaints_table", 
+    .con = con,
+    selected_bbl = reactive(input$bbl), 
+    sql_function = "ridgewood.get_hpd_complaints_for_bbl", 
+    download_file_slug = "hpd-complaints-details", 
+    dataset_name = "HPD Complaints"
+  )
 }
