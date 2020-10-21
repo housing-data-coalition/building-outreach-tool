@@ -47,9 +47,17 @@ enableBookmarking("url")
 
 bbl_links <- function(bbl) {
   glue(
-    "<a href='https://portal.displacementalert.org/property/{bbl}'>DAP Portal</a>",
+    "<a 
+      href='https://portal.displacementalert.org/property/{bbl}'
+      target='_blank'>
+    DAP Portal
+    </a>",
     "</br>",
-    "<a href='https://whoownswhat.justfix.nyc/en/bbl/{bbl}'>Who-Owns-What</a>"
+    "<a 
+      href='https://whoownswhat.justfix.nyc/en/bbl/{bbl}'
+      target='_blank'>
+    Who-Owns-What
+    </a>"
   )
 }
 
