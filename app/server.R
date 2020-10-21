@@ -94,9 +94,10 @@ server <- function(input, output, session) {
   output$home_table = renderDT(
     st_drop_geometry(home_bldg()),
     selection = "none",
-    escape = 2,
+    escape = 1,
+    rownames = FALSE,
     options = list(
-      dom = 'Brtip',
+      dom = 'Brt',
       language = list(zeroRecords = "Please input an address"),
       scrollX = TRUE
     )
@@ -105,10 +106,12 @@ server <- function(input, output, session) {
   output$outreach_table = renderDT(
     st_drop_geometry(outreach_bldgs()),
     selection = "none",
-    escape = 2,
+    escape = 1,
+    rownames = FALSE,
     options = list(
-      dom = 'Brtip',
+      dom = 'BSrtip',
       language = list(zeroRecords = "Please input an address"),
+      pageLength = 4,
       scrollX = TRUE
     )
   )
