@@ -1,4 +1,4 @@
-# Building Outreach Tool
+# [Building Outreach Tool](https://maxwell-austensen.shinyapps.io/building-outreach-tool)
 
 This app is designed to help NYC housing organizers identify and prioritize nearby properties for outreach.
 
