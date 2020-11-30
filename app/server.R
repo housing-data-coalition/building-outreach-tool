@@ -48,7 +48,7 @@ server <- function(input, output, session) {
     req(input$n_mins)
     
     outreach_query <- glue_sql(
-      "select * from get_outreach_bbls_from_bbl({home_bbl()}, {input$n_bldgs}, {input$n_mins})",
+      "select * from ridgewood.get_outreach_bbls_from_bbl({home_bbl()}, {input$n_bldgs}, {input$n_mins})",
       .con = con
     )
 
@@ -66,7 +66,7 @@ server <- function(input, output, session) {
   home_bldg <- reactive({
     
     home_query <- glue_sql(
-      "select * from hdc_building_info where bbl = {home_bbl()}", 
+      "select * from ridgewood.hdc_building_info where bbl = {home_bbl()}", 
       .con = con
     )
 

@@ -10,10 +10,6 @@ This app is built on top of the critical work done by [@aepyornis](https://githu
 
 **This project is currently in active development!**
 
-View source code: 
-* [SQL](https://github.com/housing-data-coalition/rtu-eviction-defense) 
-* [App](https://github.com/housing-data-coalition/building-outreach-tool)
-
 
 ## About the Housing Data Coalition
 
