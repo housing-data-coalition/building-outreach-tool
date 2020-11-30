@@ -16,7 +16,7 @@ CREATE MATERIALIZED VIEW ridgewood.hdc_building_info AS (
 		-- use SRID:2263 so we can calculate distance in feet
 		ST_Transform(ST_SetSRID(ST_Point(p.lng, p.lat), 4326), 2263) as geom_point 
 	FROM pluto_19v2 AS p 
-	WHERE p.unitsres >= 3
+	WHERE p.unitsres >= 0
 	), 
 
 	-- HPD Violations
@@ -255,4 +255,48 @@ RETURNS SETOF ridgewood.hdc_building_info AS $$
 	WHERE ST_DWithin(bldgs.geom_point, home_bbl.geom_point, 262.467 * _min)
 	ORDER BY priority_index DESC
 	LIMIT _n;
+$$ LANGUAGE SQL;
+
+
+
+-- Dataset Details Functions
+----------------------------
+
+
+-- For a given bbl get the X highest priority buildings within ~X min walk
+DROP FUNCTION IF EXISTS ridgewood.get_hpd_complaints_for_bbl(text);
+CREATE OR REPLACE FUNCTION ridgewood.get_hpd_complaints_for_bbl(_bbl text)
+RETURNS TABLE (
+  complaintid int,
+  problemid int,
+  receiveddate date,
+  statusdate date,
+  statusdescription text,
+  apartment text,
+  unittype text,
+  spacetype text,
+  type text,
+  majorcategory text,
+  minorcategory text,
+  code text
+) AS $$
+  SELECT
+    c.complaintid,
+    cp.problemid,
+    c.receiveddate,
+    cp.statusdate,
+    cp.statusdescription,
+    c.apartment,
+    cp.unittype,
+    cp.spacetype,
+    cp.type,
+    cp.majorcategory,
+    cp.minorcategory,
+    cp.code
+  FROM hpd_complaints AS c
+  LEFT JOIN hpd_complaint_problems AS cp USING(complaintid)
+  WHERE c.receiveddate >= '2019-01-01'
+    AND c.status = 'OPEN'
+    AND bbl = _bbl
+  ORDER BY receiveddate DESC;
 $$ LANGUAGE SQL;
